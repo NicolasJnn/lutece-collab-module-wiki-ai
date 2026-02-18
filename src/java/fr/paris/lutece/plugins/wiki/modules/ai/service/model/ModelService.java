@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.wiki.modules.ai.service.model;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dev.langchain4j.model.chat.ChatModel;
@@ -140,28 +141,18 @@ public class ModelService
             String strModelClass = AppPropertiesService.getProperty( classProperty, defaultClass );
             Map<String, Object> properties = new HashMap<>( );
 
-            String strEndpoint = AppPropertiesService.getProperty( propertyPrefix + "endpoint" );
-            if ( strEndpoint != null )
+            List<String> keys = AppPropertiesService.getKeys( propertyPrefix );
+            for ( String key : keys )
             {
-                properties.put( "endpoint", strEndpoint );
-            }
-
-            String strApiKey = AppPropertiesService.getProperty( propertyPrefix + "apiKey" );
-            if ( strApiKey != null )
-            {
-                properties.put( "apiKey", strApiKey );
-            }
-
-            String strDeploymentName = AppPropertiesService.getProperty( propertyPrefix + "deploymentName" );
-            if ( strDeploymentName != null )
-            {
-                properties.put( "deploymentName", strDeploymentName );
-            }
-
-            String strTemperature = AppPropertiesService.getProperty( propertyPrefix + "temperature" );
-            if ( strTemperature != null )
-            {
-                properties.put( "temperature", strTemperature );
+                String propertyName = key.substring( propertyPrefix.length( ) );
+                if ( !"class".equals( propertyName ) )
+                {
+                    String value = AppPropertiesService.getProperty( key );
+                    if ( value != null )
+                    {
+                        properties.put( propertyName, value );
+                    }
+                }
             }
 
             return (T) LangChain4jModelFactory.createModel( strModelClass, properties );
